@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="YLHG 縣府專用縮址中心：快速查詢、轉址與管理官方短網址。" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>YLHG 縮址中心</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">YLHG</div>
+      <div>
+        <div class="brand-title">YLHG 縮址中心</div>
+        <div class="brand-subtitle">縣府專用 · 安全導向 · 快速轉址</div>
+      </div>
+    </div>
+    <nav class="topnav">
+      <a href="#lookup">查詢</a>
+      <a href="#links">短碼列表</a>
+      <a href="#admin">管理工具</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="hero card">
+      <div class="hero-copy">
+        <p class="eyebrow">YLHG OFFICIAL SHORT LINKS</p>
+        <h1>把長網址，變成好記、好管、好追蹤的短網址。</h1>
+        <p class="lead">
+          這是一個可直接部署在免費雲端主機的縮址入口站：
+          點擊短碼會自動轉往原始網址，並保留內部管理所需的結構與版面。
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#lookup">立即查詢短碼</a>
+          <a class="button ghost" href="#admin">開啟管理工具</a>
+        </div>
+        <ul class="hero-points">
+          <li>支援 GitHub Pages 直接上線</li>
+          <li>短碼查詢、示範資料、可擴充管理頁</li>
+          <li>預留正式 API / 資料庫介面</li>
+        </ul>
+      </div>
+      <aside class="hero-panel">
+        <div class="stat-grid">
+          <div class="stat">
+            <span id="stat-total">0</span>
+            <label>短碼數</label>
+          </div>
+          <div class="stat">
+            <span>HTTPS</span>
+            <label>安全連線</label>
+          </div>
+          <div class="stat">
+            <span>404</span>
+            <label>自動轉址</label>
+          </div>
+          <div class="stat">
+            <span>JSON</span>
+            <label>資料可移植</label>
+          </div>
+        </div>
+        <div class="panel-note">
+          <strong>部署方式：</strong>
+          <span>本版已設計成可直接丟上 GitHub Pages，短碼路由會由 404.html 自動接手。</span>
+        </div>
+      </aside>
+    </section>
+
+    <section id="lookup" class="card section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">查詢短碼</p>
+          <h2>輸入短碼，立刻看到對應網址。</h2>
+        </div>
+      </div>
+      <form id="lookup-form" class="lookup-form">
+        <input id="lookup-input" type="text" placeholder="例如：meeting / procurement / news2026" autocomplete="off" />
+        <button class="button primary" type="submit">查詢</button>
+      </form>
+      <div id="lookup-result" class="result muted">請輸入一個短碼開始查詢。</div>
+    </section>
+
+    <section id="links" class="card section">
+      <div class="section-head split">
+        <div>
+          <p class="eyebrow">短碼列表</p>
+          <h2>目前已載入的官方短碼</h2>
+        </div>
+        <label class="search-box">
+          <span>篩選</span>
+          <input id="filter-input" type="search" placeholder="搜尋 code / 標題 / 原網址" />
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>短碼</th>
+              <th>標題</th>
+              <th>原網址</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="links-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="admin" class="card section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">管理工具</p>
+          <h2>先在本機編輯，再匯出 JSON 上傳</h2>
+        </div>
+      </div>
+      <div class="admin-grid">
+        <form id="admin-form" class="admin-form">
+          <div class="field-row">
+            <label>
+              <span>短碼</span>
+              <input name="code" required pattern="[a-z0-9][a-z0-9-]{1,31}" placeholder="meeting-2026" />
+            </label>
+            <label>
+              <span>標題</span>
+              <input name="title" required placeholder="縣務會議簡報" />
+            </label>
+          </div>
+          <label>
+            <span>原網址</span>
+            <input name="url" required type="url" placeholder="https://www.ylhg.gov.tw/..." />
+          </label>
+          <label>
+            <span>備註 / 擁有人</span>
+            <input name="owner" placeholder="秘書處 / 公關科" />
+          </label>
+          <div class="button-row">
+            <button class="button primary" type="submit">加入暫存</button>
+            <button id="export-json" class="button ghost" type="button">匯出 JSON</button>
+            <button id="clear-drafts" class="button ghost" type="button">清空暫存</button>
+          </div>
+        </form>
+
+        <div class="draft-panel">
+          <h3>暫存清單</h3>
+          <p class="muted">此區會存到瀏覽器 localStorage，方便先試算與匯出。</p>
+          <ul id="draft-list" class="draft-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">接下來可以升級</p>
+          <h2>如果要正式對外提供，可再接上 API / DB。</h2>
+        </div>
+      </div>
+      <div class="upgrade-grid">
+        <div class="upgrade-item"><strong>正式建立短碼</strong><span>加上後端與資料庫後，管理員可直接在網頁建立與停用。</span></div>
+        <div class="upgrade-item"><strong>點擊統計</strong><span>紀錄瀏覽次數、來源與時間，方便追蹤宣導成效。</span></div>
+        <div class="upgrade-item"><strong>權限控管</strong><span>整合單一登入或內網認證，限制只有授權人員可操作。</span></div>
+      </div>
+    </section>
+  </main>
+
+  <template id="link-row-template">
+    <tr>
+      <td class="code-cell"></td>
+      <td class="title-cell"></td>
+      <td class="url-cell"></td>
+      <td class="action-cell"></td>
+    </tr>
+  </template>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

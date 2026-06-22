@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>轉址中 · YLHG 縮址中心</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .redirect-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .redirect-card {
+      width: min(760px, 100%);
+      padding: 34px;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent);
+      letter-spacing: .12em;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+    .spinner {
+      width: 14px; height: 14px; border-radius: 999px;
+      border: 2px solid rgba(56,189,248,.25);
+      border-top-color: var(--accent);
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .target { margin-top: 16px; word-break: break-all; color: #bfdbfe; }
+    .small { color: var(--muted); line-height: 1.7; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <main class="redirect-wrap">
+    <section class="card redirect-card">
+      <div class="status"><span class="spinner"></span> 正在尋找短碼</div>
+      <h1 id="title">YLHG 縮址中心</h1>
+      <p id="message" class="small">如果這個短碼存在，系統會自動帶你到原始網址。</p>
+      <div id="target" class="target"></div>
+      <p class="small"><a href="./">回到首頁</a></p>
+    </section>
+  </main>
+  <script>
+    const manifestUrl = new URL('./data/links.json', window.location.href);
+    const path = window.location.pathname.replace(/\/+$/, '');
+    const parts = path.split('/').filter(Boolean);
+    const code = decodeURIComponent(parts[parts.length - 1] || '').toLowerCase();
+
+    function siteRoot() {
+      return new URL('./', window.location.href);
+    }
+
+    function buildShortUrl(code) {
+      return new URL(encodeURIComponent(code), siteRoot()).href;
+    }
+
+    function renderNotFound() {
+      document.getElementById('title').textContent = '找不到短碼';
+      document.getElementById('message').textContent = '請確認網址拼字，或回到首頁查詢可用短碼。';
+      document.getElementById('target').textContent = `目前路徑：${window.location.pathname}`;
+    }
+
+    fetch(manifestUrl, { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('manifest load failed')))
+      .then(data => {
+        const links = Array.isArray(data.links) ? data.links : [];
+        const entry = links.find(item => String(item.code || '').toLowerCase() === code);
+        if (!entry || !code) {
+          renderNotFound();
+          return;
+        }
+        const target = entry.url;
+        document.getElementById('title').textContent = entry.title || entry.code;
+        document.getElementById('message').textContent = '已找到對應網址，立即轉址中…';
+        document.getElementById('target').innerHTML = `短碼：<strong>${entry.code}</strong><br>原網址：<a href="${target}" rel="noopener" target="_blank">${target}</a><br>短網址：${buildShortUrl(entry.code)}`;
+        setTimeout(() => { window.location.replace(target); }, 900);
+      })
+      .catch(() => renderNotFound());
+  </script>
+</body>
+</html>

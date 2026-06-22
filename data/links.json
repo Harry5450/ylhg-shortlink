@@ -1,0 +1,32 @@
+{
+  "links": [
+    {
+      "code": "meeting",
+      "title": "縣務會議入口",
+      "url": "https://www.ylhg.gov.tw/",
+      "owner": "秘書處",
+      "updatedAt": "2026-06-23T00:00:00Z"
+    },
+    {
+      "code": "news2026",
+      "title": "年度新聞稿彙整",
+      "url": "https://www.ylhg.gov.tw/news",
+      "owner": "新聞科",
+      "updatedAt": "2026-06-23T00:00:00Z"
+    },
+    {
+      "code": "procurement",
+      "title": "採購資訊專區",
+      "url": "https://www.ylhg.gov.tw/procurement",
+      "owner": "採購課",
+      "updatedAt": "2026-06-23T00:00:00Z"
+    },
+    {
+      "code": "contact",
+      "title": "聯絡窗口",
+      "url": "https://www.ylhg.gov.tw/contact",
+      "owner": "資訊室",
+      "updatedAt": "2026-06-23T00:00:00Z"
+    }
+  ]
+}
