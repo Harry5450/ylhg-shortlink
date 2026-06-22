@@ -1,0 +1,16 @@
+name = "ylhg-shortlink-pro"
+main = "src/worker.js"
+compatibility_date = "2026-06-23"
+workers_dev = true
+
+[vars]
+APP_NAME = "YLHG 縮址管理中心"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ylhg_shortlink"
+database_id = "REPLACE_WITH_REAL_D1_ID"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"

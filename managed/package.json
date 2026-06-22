@@ -1,0 +1,8 @@
+{
+  "name": "ylhg-shortlink-pro",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/worker.test.js"
+  }
+}

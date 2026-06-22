@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#08111f" />
+  <meta name="description" content="YLHG 縣府專用短網址管理中心，提供建立、編輯、停用、刪除與點擊統計。" />
+  <title>YLHG 縮址管理中心</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <header class="topbar shell">
+    <div class="brand">
+      <div class="brand-mark">YLHG</div>
+      <div>
+        <div class="brand-title">YLHG 縮址管理中心</div>
+        <div class="brand-subtitle">縣府專用 · 建立 / 編輯 / 停用 / 統計</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="connection-badge" class="badge neutral">未登入</span>
+      <button id="refresh-btn" class="button ghost" type="button">重新整理</button>
+    </div>
+  </header>
+
+  <main class="shell dashboard">
+    <section class="card hero">
+      <div>
+        <p class="eyebrow">OFFICIAL SHORT LINK ADMIN</p>
+        <h1>正式可管理版</h1>
+        <p class="lead">
+          這個版本改成真正的後端管理架構：短碼儲存在 D1 資料庫，
+          由 Cloudflare Workers 負責建立、更新、停用、刪除與轉址。
+        </p>
+        <ul class="hero-points">
+          <li>管理介面與轉址服務同站運作</li>
+          <li>支援管理權杖登入</li>
+          <li>保留點擊統計與最近紀錄</li>
+        </ul>
+      </div>
+      <div class="login-panel">
+        <label>
+          <span>管理權杖</span>
+          <input id="token-input" type="password" placeholder="輸入 ADMIN_TOKEN" autocomplete="off" />
+        </label>
+        <div class="button-row">
+          <button id="save-token-btn" class="button primary" type="button">儲存並登入</button>
+          <button id="clear-token-btn" class="button ghost" type="button">清除</button>
+        </div>
+        <p class="muted small">
+          權杖只保存在這台瀏覽器的 sessionStorage。正式上線時，請在 Cloudflare 設定 <code>ADMIN_TOKEN</code>。
+        </p>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="card stat-card"><span id="stat-links">—</span><label>短網址總數</label></article>
+      <article class="card stat-card"><span id="stat-active">—</span><label>啟用中</label></article>
+      <article class="card stat-card"><span id="stat-clicks">—</span><label>總點擊</label></article>
+      <article class="card stat-card"><span id="stat-latest">—</span><label>最後更新</label></article>
+    </section>
+
+    <section class="card section-grid">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">新增 / 編輯短碼</p>
+          <h2>用同一個表單完成建立與修改。</h2>
+        </div>
+        <div id="form-mode" class="badge neutral">建立模式</div>
+      </div>
+      <form id="link-form" class="form-grid">
+        <div class="field-row">
+          <label>
+            <span>短碼</span>
+            <input id="code-input" name="code" required pattern="[a-z0-9][a-z0-9-]{1,31}" placeholder="meeting-2026" />
+          </label>
+          <label>
+            <span>標題</span>
+            <input id="title-input" name="title" required placeholder="縣務會議簡報" />
+          </label>
+        </div>
+        <label>
+          <span>原網址</span>
+          <input id="url-input" name="url" type="url" required placeholder="https://www.ylhg.gov.tw/..." />
+        </label>
+        <div class="field-row">
+          <label>
+            <span>承辦單位</span>
+            <input id="owner-input" name="owner" placeholder="秘書處 / 資訊室" />
+          </label>
+          <label>
+            <span>備註</span>
+            <input id="note-input" name="note" placeholder="活動頁 / 文件頁 / 一次性連結" />
+          </label>
+        </div>
+        <label class="switch-row">
+          <input id="enabled-input" name="enabled" type="checkbox" checked />
+          <span>啟用此短碼</span>
+        </label>
+        <div class="button-row">
+          <button id="submit-btn" class="button primary" type="submit">建立短碼</button>
+          <button id="reset-form-btn" class="button ghost" type="button">重置</button>
+          <button id="cancel-edit-btn" class="button ghost hidden" type="button">取消編輯</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card section-grid">
+      <div class="section-head split">
+        <div>
+          <p class="eyebrow">短碼列表</p>
+          <h2>可搜尋、可編輯、可停用。</h2>
+        </div>
+        <label class="search-box">
+          <span>搜尋</span>
+          <input id="search-input" type="search" placeholder="搜尋短碼 / 標題 / 原網址 / 單位" />
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>短碼</th>
+              <th>標題</th>
+              <th>原網址</th>
+              <th>狀態</th>
+              <th>點擊</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="links-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card section-grid">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">最近點擊</p>
+          <h2>追蹤短網址使用狀況。</h2>
+        </div>
+      </div>
+      <div id="recent-clicks" class="recent-list muted">登入後可查看。</div>
+    </section>
+  </main>
+
+  <template id="link-row-template">
+    <tr>
+      <td class="code-cell"></td>
+      <td class="title-cell"></td>
+      <td class="url-cell"></td>
+      <td class="status-cell"></td>
+      <td class="click-cell"></td>
+      <td class="action-cell"></td>
+    </tr>
+  </template>
+
+  <template id="recent-item-template">
+    <div class="recent-item">
+      <div>
+        <strong class="recent-code"></strong>
+        <span class="recent-title"></span>
+      </div>
+      <div class="recent-meta"></div>
+    </div>
+  </template>
+
+  <script type="module" src="/assets/app.js"></script>
+</body>
+</html>
